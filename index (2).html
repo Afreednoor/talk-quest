@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalkQuest – AI Interview Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --charcoal: #0e1520;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --coral: #e8836a;
+    --sage: #7a9e87;
+    --lavender: #9b8fc4;
+    --panel-solid: rgba(10,17,28,0.90);
+    --border: rgba(255,255,255,0.10);
+    --text-light: rgba(255,255,255,0.88);
+    --text-dim: rgba(255,255,255,0.42);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { font-family: 'DM Sans', sans-serif; background: var(--charcoal); color: var(--text-light); height: 100%; overflow-x: hidden; }
+
+  /* ── FIXED OFFICE BACKGROUND ── */
+  #office-bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 90% 55% at 50% -5%, rgba(45,70,110,0.62) 0%, transparent 65%),
+      linear-gradient(180deg, #192535 0%, #121c28 38%, #0c1320 65%, #080d14 100%);
+  }
+  #office-bg::before {
+    content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 42%;
+    background: repeating-linear-gradient(90deg, transparent 0px, transparent 149px, rgba(255,255,255,0.018) 149px, rgba(255,255,255,0.018) 150px);
+  }
+  #office-bg::after {
+    content: ''; position: fixed; bottom: 0; left: 0; right: 0; height: 35%;
+    background: linear-gradient(180deg, transparent 0%, rgba(4,6,10,0.75) 100%);
+  }
+  .win {
+    position: fixed; top: 6%; left: 5%; width: 96px; height: 138px; z-index: 1;
+    border: 1px solid rgba(201,168,76,0.20); border-radius: 3px;
+    background: linear-gradient(155deg, rgba(201,168,76,0.08) 0%, transparent 75%);
+  }
+  .win::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(201,168,76,0.20); }
+  .win::after  { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(201,168,76,0.20); }
+  .shelf {
+    position: fixed; top: 5%; right: 4%; width: 80px; height: 155px; z-index: 1; opacity: 0.38;
+    background: repeating-linear-gradient(180deg, #2a1f3d 0px, #2a1f3d 18px, #1c1626 18px, #1c1626 20px);
+    border-radius: 2px;
+  }
+  .desk-ledge {
+    position: fixed; bottom: 34%; left: 0; right: 0; height: 18px; z-index: 2;
+    background: linear-gradient(180deg, #4a3820 0%, #2c1f10 100%);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.7);
+  }
+  .desk-ledge::after {
+    content: ''; position: absolute; top: 100%; left: 0; right: 0; height: 70px;
+    background: linear-gradient(180deg, #2c1f10 0%, #16100a 100%);
+  }
+
+  /* ── VERTICAL SCENE ── */
+  #scene {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%; min-height: 100vh;
+    padding: 18px 16px 28px; gap: 0;
+    overflow-y: auto;
+  }
+
+  /* Top bar */
+  #top-bar {
+    width: 100%; max-width: 780px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; flex-shrink: 0;
+  }
+  .app-logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--cream); }
+  .app-logo span { color: var(--gold); }
+  .level-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 14px;
+  }
+  .level-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); flex-shrink: 0; }
+  .level-badge > span { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--sage); }
+
+  /* Interviewer section */
+  #interviewer-section {
+    width: 100%; max-width: 780px;
+    display: flex; flex-direction: column; align-items: center; flex-shrink: 0;
+  }
+  .interviewer-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.28);
+    border-radius: 20px; padding: 5px 16px; margin-bottom: 10px; z-index: 5;
+  }
+  .interviewer-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse-dot 2s infinite; }
+  .interviewer-badge > span { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: var(--gold-light); }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+  /* Avatar card – photo */
+  #avatar-card {
+    position: relative; width: 380px; height: 345px;
+    border-radius: 28px 28px 0 0; overflow: hidden; flex-shrink: 0; z-index: 4;
+    background: #1b2b40;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 32px 90px rgba(0,0,0,0.75), 0 8px 24px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  #avatar-card img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block;
+    filter: brightness(0.82) contrast(1.08) saturate(0.88);
+  }
+  #avatar-fallback {
+    width: 100%; height: 100%;
+    display: none; align-items: center; justify-content: center;
+    background: linear-gradient(180deg,#1e2d42,#111c28);
+  }
+  .img-overlay {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(201,168,76,0.10) 0%, transparent 65%), linear-gradient(180deg, transparent 50%, rgba(12,20,30,0.88) 100%);
+  }
+
+  /* Speaking waves */
+  #speaking-indicator {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 4px; align-items: flex-end; height: 24px;
+    z-index: 6; opacity: 0; transition: opacity 0.3s;
+  }
+  #speaking-indicator.active { opacity: 1; }
+  #speaking-indicator span {
+    display: block; width: 4px; background: var(--gold-light); border-radius: 2px;
+    animation: wave 1.2s ease-in-out infinite; box-shadow: 0 0 5px rgba(232,201,122,0.7);
+  }
+  #speaking-indicator span:nth-child(1){height:7px;animation-delay:0s}
+  #speaking-indicator span:nth-child(2){height:18px;animation-delay:.1s}
+  #speaking-indicator span:nth-child(3){height:12px;animation-delay:.2s}
+  #speaking-indicator span:nth-child(4){height:20px;animation-delay:.3s}
+  #speaking-indicator span:nth-child(5){height:8px;animation-delay:.4s}
+  @keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(0.22)} }
+
+  /* Speech bubble */
+  #speech-bubble {
+    position: absolute; top: -64px; left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: rgba(255,255,255,0.97); color: #111a28;
+    border-radius: 14px; padding: 10px 18px;
+    max-width: 400px; min-width: 180px; width: max-content;
+    font-size: 13.5px; line-height: 1.55; font-weight: 500; text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.32);
+    opacity: 0; transition: all 0.4s cubic-bezier(0.34,1.4,0.64,1);
+    pointer-events: none; z-index: 10; white-space: normal;
+  }
+  #speech-bubble.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #speech-bubble::after {
+    content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+    border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 9px solid rgba(255,255,255,0.97);
+  }
+
+  /* Question strip */
+  #question-strip {
+    width: 100%; max-width: 780px;
+    background: var(--panel-solid); border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 20px 20px; padding: 20px 28px 18px;
+    backdrop-filter: blur(18px); position: relative; z-index: 3; flex-shrink: 0;
+  }
+  #question-strip::before {
+    content: ''; position: absolute; top: 0; left: 12%; right: 12%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.5), transparent);
+  }
+  .q-label { font-size: 9px; font-weight: 700; letter-spacing: 2.2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 9px; }
+  #question-text { font-family: 'Playfair Display', serif; font-size: 21px; line-height: 1.45; color: var(--cream); transition: opacity 0.3s; min-height: 32px; }
+  .progress-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .progress-bar { flex: 1; height: 2px; background: rgba(255,255,255,0.08); border-radius: 1px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 1px; transition: width 0.65s cubic-bezier(0.4,0,0.2,1); width: 0%; }
+  .progress-text { font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+
+  /* Mic + score row */
+  #mic-score-row {
+    width: 100%; max-width: 780px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 36px; margin: 22px 0 18px; flex-shrink: 0;
+  }
+
+  /* Score ring */
+  #score-inline { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .score-ring { position: relative; width: 70px; height: 70px; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring .bg-circle { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 4; }
+  .score-ring .fg-circle { fill: none; stroke: var(--gold); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 188.5; stroke-dashoffset: 188.5; transition: stroke-dashoffset 0.85s cubic-bezier(0.4,0,0.2,1), stroke 0.5s; }
+  .score-number { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--cream); }
+  #confidence-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); text-align: center; }
+
+  /* Mic */
+  #mic-center { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+  #mic-btn {
+    width: 92px; height: 92px; border-radius: 50%;
+    background: linear-gradient(145deg, #c9a84c, #e8c97a);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 12px 36px rgba(201,168,76,0.45);
+    transition: all 0.32s cubic-bezier(0.34,1.56,0.64,1); outline: none; flex-shrink: 0;
+  }
+  #mic-btn:hover:not(.disabled) { transform: scale(1.1) translateY(-2px); box-shadow: 0 18px 48px rgba(201,168,76,0.55); }
+  #mic-btn.listening { background: linear-gradient(145deg,#e8836a,#f5aa94); box-shadow: 0 12px 36px rgba(232,131,106,0.55), 0 0 0 16px rgba(232,131,106,0.12); animation: mic-pulse 1.7s ease-in-out infinite; }
+  #mic-btn.disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none; }
+  @keyframes mic-pulse { 0%,100%{box-shadow:0 12px 36px rgba(232,131,106,0.55),0 0 0 16px rgba(232,131,106,0.12)} 50%{box-shadow:0 12px 36px rgba(232,131,106,0.55),0 0 0 24px rgba(232,131,106,0.04)} }
+  #mic-btn svg { width: 36px; height: 36px; fill: white; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.35)); }
+  #mic-status { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); transition: color 0.3s; text-align: center; }
+  #mic-status.listening { color: var(--coral); }
+
+  /* Stat bars */
+  #stats-inline { display: flex; flex-direction: column; gap: 8px; min-width: 136px; }
+  .si-row { display: flex; align-items: center; gap: 8px; }
+  .si-label { font-size: 10px; color: var(--text-dim); width: 56px; flex-shrink: 0; }
+  .si-bar { flex: 1; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  .si-fill { height: 100%; border-radius: 2px; transition: width 0.65s; width: 0%; }
+  .si-fill.relevance { background: var(--lavender); }
+  .si-fill.length    { background: var(--sage); }
+  .si-fill.speed     { background: var(--coral); }
+  .si-val { font-size: 10px; font-weight: 600; color: var(--text-light); width: 28px; text-align: right; }
+
+  /* Bottom cards */
+  #bottom-cards { width: 100%; max-width: 780px; display: flex; gap: 12px; flex-shrink: 0; }
+  .card { flex: 1; background: var(--panel-solid); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; backdrop-filter: blur(16px); position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,168,76,0.30), transparent); }
+  .card-label { font-size: 9px; font-weight: 700; letter-spacing: 2.2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+  #answer-text { font-size: 14px; line-height: 1.68; color: rgba(255,255,255,0.62); font-style: italic; min-height: 38px; transition: all 0.3s; }
+  #answer-text.listening { color: var(--gold-light); font-style: normal; }
+  .listening-indicator { display: flex; align-items: center; gap: 7px; margin-top: 8px; opacity: 0; transition: opacity 0.3s; }
+  .listening-indicator.show { opacity: 1; }
+  .listen-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); animation: blink 1s infinite; }
+  .listen-label { font-size: 11px; font-weight: 600; color: var(--coral); letter-spacing: 1px; text-transform: uppercase; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  #feedback-text { font-size: 14px; line-height: 1.68; color: var(--sage); min-height: 38px; transition: all 0.3s; }
+  #feedback-text.negative { color: var(--coral); }
+  #feedback-text.neutral  { color: var(--gold-light); }
+  #feedback-text.positive { color: var(--sage); }
+
+  /* ── INTRO ── */
+  #intro-screen { position: fixed; inset: 0; background: linear-gradient(135deg,#0d1b2a 0%,#1a2744 50%,#1a1a2e 100%); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; transition: opacity 0.8s, transform 0.8s; }
+  #intro-screen.hidden { opacity: 0; transform: scale(1.06); pointer-events: none; }
+  .intro-logo { font-family: 'Playfair Display', serif; font-size: 54px; font-weight: 700; color: var(--cream); letter-spacing: -1px; }
+  .intro-logo span { color: var(--gold); }
+  .intro-tagline { font-size: 13px; color: var(--text-dim); letter-spacing: 2.5px; text-transform: uppercase; font-weight: 300; }
+  .intro-features { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 2px 0; }
+  .feature-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 20px; padding: 7px 18px; font-size: 13px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+  .feature-pill span { font-size: 15px; }
+  #start-btn { background: linear-gradient(135deg,var(--gold),var(--gold-light)); border: none; border-radius: 50px; padding: 18px 62px; font-family: 'DM Sans',sans-serif; font-size: 16px; font-weight: 700; color: #0e1520; cursor: pointer; letter-spacing: 0.3px; box-shadow: 0 12px 40px rgba(201,168,76,0.38); transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); outline: none; margin-top: 4px; }
+  #start-btn:hover { transform: scale(1.07) translateY(-3px); box-shadow: 0 20px 52px rgba(201,168,76,0.52); }
+
+  /* ── COMPLETE ── */
+  #complete-screen { position: fixed; inset: 0; background: rgba(6,10,18,0.97); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; opacity: 0; pointer-events: none; transition: opacity 0.6s; backdrop-filter: blur(12px); }
+  #complete-screen.show { opacity: 1; pointer-events: all; }
+  .complete-title { font-family: 'Playfair Display', serif; font-size: 46px; color: var(--cream); letter-spacing: -0.5px; }
+  .complete-score-display { font-family: 'Playfair Display', serif; font-size: 78px; color: var(--gold); line-height: 1; }
+  .complete-label { font-size: 11px; color: var(--text-dim); letter-spacing: 2.5px; text-transform: uppercase; }
+  .complete-feedback { max-width: 440px; text-align: center; font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.78; padding: 20px 26px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; }
+  #restart-btn { background: linear-gradient(135deg,var(--gold),var(--gold-light)); border: none; border-radius: 50px; padding: 16px 52px; font-family: 'DM Sans',sans-serif; font-size: 15px; font-weight: 700; color: #0e1520; cursor: pointer; margin-top: 4px; transition: all 0.3s; }
+  #restart-btn:hover { transform: scale(1.05); }
+
+  /* ── TOAST ── */
+  #toast { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(80px); background: rgba(232,131,106,0.96); color: white; padding: 11px 28px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 200; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); backdrop-filter: blur(8px); }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    #avatar-card { width: 100%; max-width: 320px; height: 270px; }
+    #question-text { font-size: 17px; }
+    #bottom-cards { flex-direction: column; }
+    #mic-btn { width: 78px; height: 78px; }
+    #mic-btn svg { width: 30px; height: 30px; }
+    #stats-inline, #score-inline { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro-screen">
+  <div class="intro-logo">Talk<span>Quest</span></div>
+  <div class="intro-tagline">AI Interview Training System · Version 2.0</div>
+  <div class="intro-features">
+    <div class="feature-pill"><span>🎙️</span> Voice Powered</div>
+    <div class="feature-pill"><span>🤖</span> AI Coaching</div>
+    <div class="feature-pill"><span>📈</span> Adaptive</div>
+  </div>
+  <button id="start-btn" onclick="startSession()">Begin Interview</button>
+</div>
+
+<!-- COMPLETE -->
+<div id="complete-screen">
+  <div class="complete-label">Session Complete</div>
+  <div class="complete-title">Well Done! 🎉</div>
+  <div class="complete-score-display" id="final-score-display">0</div>
+  <div class="complete-label">Average Confidence Score</div>
+  <div class="complete-feedback" id="final-feedback-text">Great effort today!</div>
+  <button id="restart-btn" onclick="restartSession()">Try Again</button>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- OFFICE BG ELEMENTS -->
+<div id="office-bg"></div>
+<div class="win"></div>
+<div class="shelf"></div>
+<div class="desk-ledge"></div>
+
+<!-- MAIN VERTICAL LAYOUT -->
+<div id="scene">
+
+  <!-- 1. Top bar -->
+  <div id="top-bar">
+    <div class="app-logo">Talk<span>Quest</span></div>
+    <div class="level-badge">
+      <div class="level-dot"></div>
+      <span id="level-display">Easy</span>
+    </div>
+  </div>
+
+  <!-- 2. Interviewer -->
+  <div id="interviewer-section">
+    <div class="interviewer-badge">
+      <div class="dot"></div>
+      <span>Ms. Sarah — HR Lead</span>
+    </div>
+
+    <div id="avatar-card">
+      <img
+        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80&fit=crop&crop=faces,top"
+        alt="Female Interviewer Ms. Sarah"
+        onerror="this.style.display='none';document.getElementById('avatar-fallback').style.display='flex';"
+      />
+      <div id="avatar-fallback">
+        <svg viewBox="0 0 220 280" width="220" height="280" xmlns="http://www.w3.org/2000/svg">
+          <rect x="40" y="192" width="140" height="110" rx="10" fill="#1e3a5f"/>
+          <polygon points="90,194 110,218 130,194" fill="#f0f0f0"/>
+          <polygon points="90,194 110,224 87,242" fill="#f0f0f0"/>
+          <polygon points="130,194 110,224 133,242" fill="#f0f0f0"/>
+          <polygon points="68,194 90,194 87,242 52,252" fill="#163258"/>
+          <polygon points="152,194 130,194 133,242 168,252" fill="#163258"/>
+          <circle cx="110" cy="236" r="3.2" fill="#c0a060"/>
+          <circle cx="110" cy="250" r="3.2" fill="#c0a060"/>
+          <rect x="97" y="170" width="26" height="28" rx="8" fill="#d4956a"/>
+          <ellipse cx="110" cy="140" rx="52" ry="58" fill="#d4956a"/>
+          <ellipse cx="110" cy="95" rx="52" ry="32" fill="#3d2314"/>
+          <path d="M58 120 Q40 185 55 214 Q72 192 72 162 Q70 140 62 130 Z" fill="#3d2314"/>
+          <path d="M162 120 Q180 185 165 214 Q148 192 148 162 Q150 140 158 130 Z" fill="#3d2314"/>
+          <path d="M58 120 Q56 99 72 89 Q90 81 110 79 Q130 81 148 89 Q164 99 162 120 Q150 112 130 108 Q110 106 90 108 Q70 112 58 120Z" fill="#3d2314"/>
+          <ellipse cx="90" cy="148" rx="10" ry="9" fill="white"/>
+          <ellipse cx="130" cy="148" rx="10" ry="9" fill="white"/>
+          <ellipse cx="91" cy="149" rx="6" ry="6.5" fill="#2c1810"/>
+          <ellipse cx="131" cy="149" rx="6" ry="6.5" fill="#2c1810"/>
+          <circle cx="93" cy="147" r="2" fill="white"/>
+          <circle cx="133" cy="147" r="2" fill="white"/>
+          <path d="M80 136 Q90 131 100 135" stroke="#3d2314" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M120 135 Q130 131 140 136" stroke="#3d2314" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M108 158 Q106 168 104 172 Q110 176 116 172 Q114 168 112 158" fill="none" stroke="#c07850" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M97 184 Q110 190 123 184" stroke="#c05070" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M97 184 Q103 179 110 180 Q117 179 123 184" stroke="#c05070" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M97 184 Q110 196 123 184" fill="#e07090" opacity="0.6"/>
+          <circle cx="58" cy="158" r="4" fill="#c9a84c" opacity="0.8"/>
+          <circle cx="162" cy="158" r="4" fill="#c9a84c" opacity="0.8"/>
+          <rect x="78" y="141" width="28" height="18" rx="8" fill="none" stroke="#2a1a0a" stroke-width="2" opacity="0.7"/>
+          <rect x="114" y="141" width="28" height="18" rx="8" fill="none" stroke="#2a1a0a" stroke-width="2" opacity="0.7"/>
+          <line x1="106" y1="150" x2="114" y2="150" stroke="#2a1a0a" stroke-width="2" opacity="0.7"/>
+          <line x1="58" y1="150" x2="78" y2="150" stroke="#2a1a0a" stroke-width="1.5" opacity="0.7"/>
+          <line x1="142" y1="150" x2="162" y2="150" stroke="#2a1a0a" stroke-width="1.5" opacity="0.7"/>
+        </svg>
+      </div>
+      <div class="img-overlay"></div>
+      <div id="speaking-indicator">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div id="speech-bubble"></div>
+    </div>
+  </div>
+
+  <!-- 3. Question strip (flush below image) -->
+  <div id="question-strip">
+    <div class="q-label">Current Question</div>
+    <div id="question-text">Preparing your interview...</div>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-text" id="progress-text">0 / 10</div>
+    </div>
+  </div>
+
+  <!-- 4. Mic + score + stats -->
+  <div id="mic-score-row">
+    <div id="score-inline">
+      <div class="score-ring">
+        <svg viewBox="0 0 70 70" width="70" height="70">
+          <circle class="bg-circle" cx="35" cy="35" r="30"/>
+          <circle class="fg-circle" id="score-circle" cx="35" cy="35" r="30"/>
+        </svg>
+        <div class="score-number" id="score-number">0</div>
+      </div>
+      <div id="confidence-label">—</div>
+    </div>
+
+    <div id="mic-center">
+      <button id="mic-btn" onclick="toggleMic()" title="Click to speak / stop">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v6a2 2 0 1 0 4 0V5a2 2 0 0 0-2-2zm-6 9a6 6 0 0 0 12 0h2a8 8 0 0 1-7 7.93V22h-2v-2.07A8 8 0 0 1 4 12H6z"/>
+        </svg>
+      </button>
+      <div id="mic-status">Click to Answer</div>
+    </div>
+
+    <div id="stats-inline">
+      <div class="si-row">
+        <div class="si-label">Relevance</div>
+        <div class="si-bar"><div class="si-fill relevance" id="fill-relevance"></div></div>
+        <div class="si-val" id="stat-relevance">—</div>
+      </div>
+      <div class="si-row">
+        <div class="si-label">Length</div>
+        <div class="si-bar"><div class="si-fill length" id="fill-length"></div></div>
+        <div class="si-val" id="stat-length">—</div>
+      </div>
+      <div class="si-row">
+        <div class="si-label">Speed</div>
+        <div class="si-bar"><div class="si-fill speed" id="fill-speed"></div></div>
+        <div class="si-val" id="stat-speed">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Answer + Feedback cards -->
+  <div id="bottom-cards">
+    <div class="card">
+      <div class="card-label">Your Answer</div>
+      <div id="answer-text">Your spoken response will appear here...</div>
+      <div class="listening-indicator" id="listening-indicator">
+        <div class="listen-dot"></div>
+        <div class="listen-label">Listening...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Coaching Feedback</div>
+      <div id="feedback-text">Complete your answer to receive feedback.</div>
+    </div>
+  </div>
+
+</div><!-- /#scene -->
+
+<script>
+// ══════════════════════════════════════════════
+//  TALKQUEST – ENGINE (all logic unchanged)
+// ══════════════════════════════════════════════
+
+const QUESTIONS = {
+  easy: [
+    { text: "Can you tell me your name and a little about yourself?", keywords: ["name","hello","hi","myself","i am","my name","background","years"] },
+    { text: "What is your favorite subject in school and why?", keywords: ["subject","favorite","because","like","love","enjoy","math","science","english","art"] },
+    { text: "Can you tell me about a hobby you enjoy?", keywords: ["hobby","enjoy","like","love","play","read","draw","paint","sport","game","music"] },
+    { text: "What do you want to be when you grow up?", keywords: ["want","be","doctor","engineer","teacher","artist","scientist","future","dream"] },
+    { text: "Can you describe your best friend?", keywords: ["friend","kind","funny","nice","smart","helpful","good","best","like","play"] },
+    { text: "What is something you are really good at?", keywords: ["good","skill","great","able","can","best","talent","strong","enjoy"] },
+    { text: "How do you spend your weekends?", keywords: ["weekend","play","park","family","watch","read","sleep","sport","fun","relax"] },
+    { text: "Can you tell me about your family?", keywords: ["family","mom","dad","sister","brother","parent","love","home","together"] },
+    { text: "What is your favorite food and why?", keywords: ["food","favorite","like","love","eat","taste","because","delicious","pizza","rice","chicken"] },
+    { text: "How do you feel when you help someone?", keywords: ["feel","happy","good","proud","nice","helpful","kind","glad","wonderful","great"] },
+    { text: "What is your favorite animal and why?", keywords: ["animal","dog","cat","elephant","lion","favorite","because","cute","strong","love"] },
+  ],
+  medium: [
+    { text: "Tell me about a challenge you faced and how you solved it.", keywords: ["challenge","problem","solved","difficult","tried","overcome","solution","hard","managed"] },
+    { text: "What is a skill you want to improve and how will you do it?", keywords: ["skill","improve","practice","learn","better","plan","goal","work","study","develop"] },
+    { text: "Describe a time when you worked with a team. What was your role?", keywords: ["team","together","worked","role","helped","group","cooperate","leader","member","project"] },
+    { text: "What motivates you to do your best every day?", keywords: ["motivate","goal","dream","family","passion","reason","because","inspire","achieve","success"] },
+    { text: "How do you manage your time when you have many tasks?", keywords: ["time","manage","priority","list","organize","plan","schedule","first","important","focus"] },
+    { text: "Tell me about something new you learned recently.", keywords: ["learned","new","discovered","interesting","topic","study","found","knowledge","recently"] },
+    { text: "How do you handle feedback or criticism?", keywords: ["feedback","criticism","accept","improve","listen","understand","learn","better","change","thank"] },
+    { text: "What does success mean to you?", keywords: ["success","achieve","goal","happy","accomplish","hard work","dream","proud","mean","define"] },
+    { text: "Describe a book or movie that inspired you. Why?", keywords: ["book","movie","inspired","character","story","lesson","because","taught","like","great"] },
+    { text: "What are three qualities you believe are important for a good leader?", keywords: ["leader","quality","honest","brave","kind","smart","listen","decision","responsible","respect"] },
+    { text: "Tell me about a goal you are currently working toward.", keywords: ["goal","working","achieve","plan","progress","practice","target","effort","improve","steps"] },
+  ],
+  hard: [
+    { text: "Where do you see yourself professionally in five years?", keywords: ["five years","professional","career","goal","achieve","grow","position","skill","future","plan"] },
+    { text: "Describe a situation where you had to make a difficult decision. What was your process?", keywords: ["decision","difficult","process","consider","think","chose","outcome","result","option","weigh"] },
+    { text: "How do you approach learning something completely new and unfamiliar?", keywords: ["approach","learning","new","research","practice","steps","method","understand","try","explore"] },
+    { text: "Tell me about a time you failed. What did you learn from it?", keywords: ["failed","learn","lesson","mistake","improve","outcome","experience","understand","grew","change"] },
+    { text: "How would you explain a complex topic to someone with no background in it?", keywords: ["explain","simple","example","analogy","step","clear","understand","break down","language","relate"] },
+    { text: "What strategies do you use to stay motivated during long or difficult projects?", keywords: ["strategy","motivated","milestone","reward","focus","goal","progress","energy","plan","persist"] },
+    { text: "How do you prioritize competing responsibilities and deadlines?", keywords: ["prioritize","deadline","important","urgent","list","schedule","balance","manage","first","organize"] },
+    { text: "Describe your ideal work or learning environment.", keywords: ["environment","quiet","collaborative","structured","flexible","prefer","productive","space","creative","focused"] },
+    { text: "How do you handle disagreements with peers or authority figures respectfully?", keywords: ["disagree","respectful","listen","communicate","calm","understand","perspective","solution","discuss","politely"] },
+    { text: "If you could solve one problem in the world, what would it be and why?", keywords: ["solve","problem","world","important","because","impact","people","help","change","better"] },
+    { text: "What unique perspective or skill set do you bring that others might not?", keywords: ["unique","perspective","skill","different","bring","value","strength","background","creative","offer"] },
+  ]
+};
+
+const state = {
+  level:'easy', questionIndex:0, totalAnswered:0, scores:[],
+  currentQuestion:null, isListening:false, isSpeaking:false,
+  startTime:0, recognition:null, synth:window.speechSynthesis,
+  femaleVoice:null, voicesLoaded:false, sessionStarted:false,
+  processingAnswer:false, currentTranscript:'', questionQueue:[],
+  consecutiveGood:0, consecutivePoor:0
+};
+
+const QUESTIONS_PER_SESSION = 10;
+
+function showToast(msg,dur=3500){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+function el(id){return document.getElementById(id);}
+
+function loadVoices(){
+  const voices=state.synth.getVoices();
+  if(!voices.length) return;
+  state.voicesLoaded=true;
+  const female=voices.find(v=>/female|woman/i.test(v.name)||/google uk english female/i.test(v.name)||/samantha/i.test(v.name)||/victoria/i.test(v.name)||/karen/i.test(v.name)||/moira/i.test(v.name)||/veena/i.test(v.name))
+    ||voices.find(v=>/en[-_]gb/i.test(v.lang)||/en[-_]au/i.test(v.lang))
+    ||voices.find(v=>/en/i.test(v.lang)&&!(/male/i.test(v.name)))
+    ||voices[0];
+  state.femaleVoice=female;
+}
+window.speechSynthesis.onvoiceschanged=loadVoices;
+loadVoices();
+
+function speak(text,onEnd){
+  state.synth.cancel();
+  const utt=new SpeechSynthesisUtterance(text);
+  if(state.femaleVoice) utt.voice=state.femaleVoice;
+  utt.rate=0.92; utt.pitch=1.1; utt.volume=1;
+  utt.onstart=()=>{
+    state.isSpeaking=true;
+    el('speaking-indicator').classList.add('active');
+    el('speech-bubble').textContent=text;
+    el('speech-bubble').classList.add('show');
+  };
+  utt.onend=()=>{
+    state.isSpeaking=false;
+    el('speaking-indicator').classList.remove('active');
+    setTimeout(()=>el('speech-bubble').classList.remove('show'),1500);
+    if(onEnd) setTimeout(onEnd,300);
+  };
+  utt.onerror=()=>{
+    state.isSpeaking=false;
+    el('speaking-indicator').classList.remove('active');
+    if(onEnd) setTimeout(onEnd,300);
+  };
+  setTimeout(()=>state.synth.speak(utt),100);
+}
+
+function buildQueue(){
+  const pool=[...QUESTIONS[state.level]];
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  state.questionQueue=pool.slice(0,QUESTIONS_PER_SESSION);
+  state.questionIndex=0;
+}
+
+function startSession(){
+  el('intro-screen').classList.add('hidden');
+  buildQueue();
+  state.sessionStarted=true; state.scores=[]; state.totalAnswered=0;
+  state.consecutiveGood=0; state.consecutivePoor=0;
+  updateLevelBadge();
+  setTimeout(askNextQuestion,800);
+}
+
+function askNextQuestion(){
+  if(state.questionIndex>=state.questionQueue.length){endSession();return;}
+  state.currentQuestion=state.questionQueue[state.questionIndex];
+  state.processingAnswer=false; state.currentTranscript='';
+  const total=state.questionQueue.length;
+  const pct=(state.questionIndex/total)*100;
+  el('question-text').style.opacity='0';
+  setTimeout(()=>{el('question-text').textContent=state.currentQuestion.text;el('question-text').style.opacity='1';},200);
+  el('progress-fill').style.width=pct+'%';
+  el('progress-text').textContent=`${state.questionIndex} / ${total}`;
+  el('answer-text').textContent='Your spoken response will appear here...';
+  el('answer-text').classList.remove('listening');
+  el('feedback-text').textContent='Complete your answer to receive feedback.';
+  el('feedback-text').className='';
+  el('listening-indicator').classList.remove('show');
+  setMicDisabled(true);
+  speak(state.currentQuestion.text,()=>{
+    setMicDisabled(false);
+    el('mic-status').textContent='Click to Answer';
+  });
+  state.startTime=Date.now();
+}
+
+function toggleMic(){
+  if(el('mic-btn').classList.contains('disabled')) return;
+  if(state.isSpeaking) return;
+  if(state.processingAnswer) return;
+  state.isListening ? stopListening() : startListening();
+}
+
+function setMicDisabled(d){
+  d ? el('mic-btn').classList.add('disabled') : el('mic-btn').classList.remove('disabled');
+}
+
+function initRecognition(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR) return false;
+  state.recognition=new SR();
+  state.recognition.continuous=true;
+  state.recognition.interimResults=true;
+  state.recognition.lang='en-US';
+  state.recognition.onresult=(evt)=>{
+    let interim='',final='';
+    for(let i=evt.resultIndex;i<evt.results.length;i++){
+      evt.results[i].isFinal ? final+=evt.results[i][0].transcript+' ' : interim+=evt.results[i][0].transcript;
+    }
+    if(final) state.currentTranscript+=final;
+    const display=(state.currentTranscript+interim).trim();
+    el('answer-text').textContent=display||'Listening...';
+    el('answer-text').classList.add('listening');
+  };
+  state.recognition.onerror=(evt)=>{
+    if(evt.error==='not-allowed'){showToast('Microphone permission denied. Please allow mic access.');setMicDisabled(true);}
+    else if(evt.error!=='no-speech'&&evt.error!=='aborted'){showToast('Speech error: '+evt.error);}
+    state.isListening=false; updateMicUI(false);
+  };
+  state.recognition.onend=()=>{ state.isListening=false; updateMicUI(false); };
+  return true;
+}
+
+function startListening(){
+  if(!state.recognition){if(!initRecognition()){showToast('Speech recognition not supported in this browser.');return;}}
+  state.currentTranscript=''; state.startTime=Date.now();
+  try{
+    state.recognition.start();
+    state.isListening=true; updateMicUI(true);
+    el('answer-text').textContent='Listening...';
+    el('answer-text').classList.add('listening');
+    el('listening-indicator').classList.add('show');
+  }catch(e){}
+}
+
+function stopListening(){
+  state.isListening=false;
+  try{state.recognition.stop();}catch(e){}
+  updateMicUI(false);
+  el('listening-indicator').classList.remove('show');
+  const answer=state.currentTranscript.trim();
+  if(!answer){
+    el('answer-text').textContent='[No answer detected]';
+    el('answer-text').classList.remove('listening');
+    setTimeout(()=>processAnswer('[No answer detected]'),500);
+  } else {
+    el('answer-text').textContent=answer;
+    el('answer-text').classList.remove('listening');
+    setTimeout(()=>processAnswer(answer),500);
+  }
+}
+
+function updateMicUI(listening){
+  const btn=el('mic-btn'), status=el('mic-status');
+  if(listening){ btn.classList.add('listening'); status.textContent='Tap to Stop'; status.classList.add('listening'); }
+  else { btn.classList.remove('listening'); status.textContent='Click to Answer'; status.classList.remove('listening'); }
+}
+
+function processAnswer(answer){
+  if(state.processingAnswer) return;
+  state.processingAnswer=true; setMicDisabled(true);
+  const responseTime=(Date.now()-state.startTime)/1000;
+  const words=answer.replace(/\[.*?\]/g,'').trim().split(/\s+/).filter(w=>w.length>0);
+  const wordCount=words.length;
+  const q=state.currentQuestion;
+  let matchCount=0;
+  const lowerAnswer=answer.toLowerCase();
+  q.keywords.forEach(kw=>{if(lowerAnswer.includes(kw.toLowerCase())) matchCount++;});
+  const relevanceScore=Math.min(100,Math.round((matchCount/Math.max(q.keywords.length*0.4,1))*100));
+  const lengthScore=wordCount===0?0:wordCount<5?20:wordCount<10?45:wordCount<20?65:wordCount<35?82:Math.min(100,85+(wordCount-35)*0.5);
+  const speedScore=responseTime<2?80:responseTime<6?100:responseTime<12?85:responseTime<20?65:40;
+  const totalScore=Math.round(relevanceScore*0.45+lengthScore*0.35+speedScore*0.2);
+  state.scores.push(totalScore); state.totalAnswered++; state.questionIndex++;
+  if(totalScore>=70){ state.consecutiveGood++; state.consecutivePoor=0; if(state.consecutiveGood>=3){promoteLevel();state.consecutiveGood=0;} }
+  else if(totalScore<40){ state.consecutivePoor++; state.consecutiveGood=0; if(state.consecutivePoor>=2){demoteLevel();state.consecutivePoor=0;} }
+  let fb='',fbClass='';
+  if(wordCount===0||answer==='[No answer detected]'){ fb="I didn't catch that. Try speaking clearly into your microphone."; fbClass='negative'; }
+  else if(wordCount<5){ fb="Try to speak more — a fuller answer shows your confidence!"; fbClass='negative'; }
+  else if(relevanceScore<25){ fb="Your answer wasn't quite on topic. Listen carefully and address the question directly."; fbClass='negative'; }
+  else if(responseTime>20){ fb="Good content! Try to respond a bit faster to show confidence."; fbClass='neutral'; }
+  else if(totalScore>=75){ fb="Excellent answer! Your clarity and relevance are impressive. Keep it up!"; fbClass='positive'; }
+  else if(totalScore>=55){ fb="Good answer! You're doing well. Try adding more detail to boost your score."; fbClass='positive'; }
+  else if(totalScore>=35){ fb="Decent effort! Focus on using more keywords related to the question."; fbClass='neutral'; }
+  else { fb="Keep practicing! Try structuring your answer with a clear point and reason."; fbClass='neutral'; }
+  el('feedback-text').textContent=fb; el('feedback-text').className=fbClass;
+  updateScore(totalScore);
+  updateStats(relevanceScore,Math.round(lengthScore),Math.round(speedScore));
+  const prog=Math.round((state.questionIndex/state.questionQueue.length)*100);
+  el('progress-fill').style.width=prog+'%';
+  el('progress-text').textContent=`${state.questionIndex} / ${state.questionQueue.length}`;
+  speak("Thank you for your answer. "+fb,()=>{
+    setTimeout(()=>{ state.questionIndex<state.questionQueue.length ? askNextQuestion() : endSession(); },600);
+  });
+}
+
+function updateScore(score){
+  el('score-number').textContent=score;
+  const offset=188.5-(score/100)*188.5;
+  el('score-circle').style.strokeDashoffset=offset;
+  let label,color;
+  if(score<30){label='Low Confidence';color='#e8836a';}
+  else if(score<55){label='Improving';color='#e8c97a';}
+  else if(score<75){label='Good';color='#7a9e87';}
+  else{label='Excellent';color='#9b8fc4';}
+  el('confidence-label').textContent=label; el('confidence-label').style.color=color; el('score-circle').style.stroke=color;
+}
+
+function updateStats(rel,len,spd){
+  el('stat-relevance').textContent=rel+'%'; el('stat-length').textContent=len+'%'; el('stat-speed').textContent=spd+'%';
+  el('fill-relevance').style.width=rel+'%'; el('fill-length').style.width=len+'%'; el('fill-speed').style.width=spd+'%';
+}
+
+function promoteLevel(){ if(state.level==='easy'){state.level='medium';rebuildQueue();}else if(state.level==='medium'){state.level='hard';rebuildQueue();} updateLevelBadge(); }
+function demoteLevel(){ if(state.level==='hard'){state.level='medium';rebuildQueue();}else if(state.level==='medium'){state.level='easy';rebuildQueue();} updateLevelBadge(); }
+
+function rebuildQueue(){
+  const remaining=state.questionQueue.length-state.questionIndex;
+  const pool=[...QUESTIONS[state.level]];
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  state.questionQueue=[...state.questionQueue.slice(0,state.questionIndex),...pool.slice(0,remaining)];
+}
+
+function updateLevelBadge(){
+  const labels={easy:'Easy',medium:'Medium',hard:'Hard'};
+  const colors={easy:'#7a9e87',medium:'#e8c97a',hard:'#e8836a'};
+  el('level-display').textContent=labels[state.level];
+  el('level-display').style.color=colors[state.level];
+  document.querySelector('.level-badge .level-dot').style.background=colors[state.level];
+}
+
+function endSession(){
+  state.synth.cancel();
+  const avg=state.scores.length?Math.round(state.scores.reduce((a,b)=>a+b,0)/state.scores.length):0;
+  el('final-score-display').textContent=avg;
+  let finalMsg='';
+  if(avg>=75) finalMsg="Outstanding performance! You showed excellent communication skills, clarity, and confidence. You're interview-ready!";
+  else if(avg>=55) finalMsg="Great effort! Your answers were generally good. Keep practicing to sharpen your focus and build more confidence.";
+  else if(avg>=35) finalMsg="Good start! With more practice, you'll improve your relevance and response length. Don't give up!";
+  else finalMsg="Every expert was once a beginner. Keep practicing — you're building valuable skills with every session!";
+  el('final-feedback-text').textContent=finalMsg;
+  el('complete-screen').classList.add('show');
+  speak(`Session complete! Your average confidence score is ${avg}. ${finalMsg}`);
+}
+
+function restartSession(){
+  state.synth.cancel();
+  el('complete-screen').classList.remove('show');
+  state.level='easy'; state.scores=[]; state.questionIndex=0; state.totalAnswered=0;
+  state.consecutiveGood=0; state.consecutivePoor=0;
+  state.isListening=false; state.processingAnswer=false; state.currentTranscript='';
+  updateMicUI(false); updateScore(0); updateStats(0,0,0); updateLevelBadge();
+  buildQueue(); setTimeout(askNextQuestion,600);
+}
+
+window.addEventListener('load',()=>{ loadVoices(); initRecognition(); });
+</script>
+</body>
+</html>
