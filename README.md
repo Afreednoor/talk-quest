@@ -1,3 +1,4 @@
+Updated project documentation.
  Talk Quest
 
 AI-powered communication practice game for introverts and ASD users.
