@@ -1,7 +1,7 @@
 Updated project documentation.
  Talk Quest
  Live Demo
- (https://lighthearted-croquembouche-c0aff0.netlify.app/)
+ (https://talk-quest.netlify.app/)
 
 AI-powered communication practice game for introverts and ASD users.
 
